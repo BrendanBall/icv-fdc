@@ -1,4 +1,4 @@
-from PIL import Image
+from PIL import Image, ImageOps
 import PIL
 import sys
 import numpy as np
@@ -22,11 +22,9 @@ if __name__ == "__main__":
 	img = Image.open(sys.argv[1]).convert("L")
 	img.show()
 	img_array = np.array(img, np.uint8).reshape(img.size[1], img.size[0])
-	#temp = np.array([[0,100,50],[20,150,75],[50,0,100]], np.uint8)
-	blurred_array = median_filter(img_array, img.size, 1)
-	blurred_array = gaussian_blur(blurred_array, img.size, 1)
-	#print temp
-	#print blurred_array
-	blurred_array = weird_hack(blurred_array, img.size)
+	blurred_array = gaussian_blur(img_array, img.size, 1)
+	#blurred_array = median_filter(blurred_array, img.size, 1)
+
+	blurred_array = detect_edges(blurred_array, img.size)
 	blurred_img = Image.fromarray(np.uint8(blurred_array))
 	blurred_img.show()

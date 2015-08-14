@@ -2,7 +2,7 @@ import numpy as np
 from math import pi,e
 
 
-def G(x, y, variance=0.2):
+def G(x, y, variance=0.6):
 	return (1/ (2 * pi * variance)) * e ** (- (x**2 + y**2)/(2 * variance))
 
 def gaussian_kernel(img_array, img_size, x_current, y_current, kernelsize):
@@ -45,7 +45,7 @@ def median_kernel(img_array, img_size, x, y, kernelsize):
 				i += 1
 
 	window.sort()
-	return window[i/2 + 1]
+	return window[i/2 +1]
 
 
 def median_filter(img_array, img_size, kernelsize):
@@ -58,10 +58,10 @@ def median_filter(img_array, img_size, kernelsize):
 
 	return output_array
 
-def weird_hack(img_array, img_size):
+def detect_edges(img_array, img_size):
 	output_array = np.array(img_array, np.uint8)
 	for y in range(img_size[1]):
 		for x in range(img_size[0]):
 			output_array[y][x] = int(img_array[y][x] * 2)
-			output_array[y][x] = 255 if output_array[y][x] > 100 else 0
+			output_array[y][x] = 255 if 150 > output_array[y][x] > 50  else 0
 	return output_array
