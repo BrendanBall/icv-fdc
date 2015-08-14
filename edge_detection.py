@@ -5,17 +5,23 @@ from math import pi,e
 def G(x, y, variance=0.2):
 	return (1/ (2 * pi * variance)) * e ** (- (x**2 + y**2)/(2 * variance))
 
-def gaussian_kernel(img_array, img_size, x, y, kernelsize):
+def gaussian_kernel(img_array, img_size, x_current, y_current, kernelsize):
 	sum = 0;
 	for j in range(-kernelsize, kernelsize+1):
 		for i in range(-kernelsize, kernelsize+1):
-			if (y + j >= 0 and x + i >= 0 and y + j < img_size[1]  and x + i < img_size[0]):
-				sum += img_array[y + j][x + i] * G(i, j)
-				#print i+x,j+y, img_array[y + j][x + i] * G(i, j), G(i, j)
+			x = x_current + i
+			y = y_current + j
+			if y < 0: 
+				y = 0
+			elif y >= img_size[1]:
+				y = img_size[1] - 1
+			if x < 0:
+				x = 0
+			elif x >= img_size[0]:
+				x = img_size[0] - 1
 
-	#print sum
-	#if sum > 0:
-		#print sum
+			sum += img_array[y][x] * G(i, j)
+
 	return int(sum)
 
 
@@ -39,7 +45,7 @@ def median_kernel(img_array, img_size, x, y, kernelsize):
 				i += 1
 
 	window.sort()
-	return window[i/2]
+	return window[i/2 + 1]
 
 
 def median_filter(img_array, img_size, kernelsize):
@@ -57,5 +63,5 @@ def weird_hack(img_array, img_size):
 	for y in range(img_size[1]):
 		for x in range(img_size[0]):
 			output_array[y][x] = int(img_array[y][x] * 2)
-			output_array[y][x] = 255 if output_array[y][x] > 50 else 0
+			output_array[y][x] = 255 if output_array[y][x] > 100 else 0
 	return output_array
