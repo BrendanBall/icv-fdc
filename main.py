@@ -23,9 +23,10 @@ def edge_detection():
 	accumulate_img.show("accumulated")
 
 
-def circle_coords(center, radius):
-	x1, y1 = center[0] - radius, center[1] - radius
-	x2, y2 = center[0] + radius, center[1]+ radius
+def drawing_points(circle):
+	"""circle is a tuple of form (center x,center y, radius)"""
+	x1, y1 = circle[0] - circle[2], circle[1] - circle[2]
+	x2, y2 = circle[0] + circle[2], circle[1] + circle[2]
 	return [x1,y1,x2,y2]
 
 def edge_detection_optimized():
@@ -35,21 +36,21 @@ def edge_detection_optimized():
 
 	blurred_array = gaussian_blur_optimized(img_array, img.size, 2)
 	blurred_img = Image.fromarray(blurred_array)
-	blurred_img.show()
+	#blurred_img.show()
 
 	edge_array = detect_edges(blurred_array, img.size)
 	edge_img = Image.fromarray(edge_array)
-	edge_img.show()
-"""
-	accumulator_array, circle_center = accumulate(edge_array, img.size)
+	#edge_img.show()
+
+	accumulator_array, circles = accumulate(edge_array, img.size)
 	accumulate_img = Image.fromarray(np.uint8(accumulator_array))
 	accumulate_img.show("accumulated")
 	img = img.convert("RGB")
 	draw = ImageDraw.Draw(img)
-	radius = 30.5
-	circle = circle_coords(circle_center, radius)
-	draw.ellipse(circle, outline="blue")
-	img.show()"""
+	for circle in circles:
+		circle_points = drawing_points(circle)
+		draw.ellipse(circle_points, outline="blue")
+	img.show()
 
 
 
