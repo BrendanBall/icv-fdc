@@ -3,6 +3,7 @@ import PIL
 import sys
 import numpy as np
 from edge_detection import *
+from hough_transform import *
 
 
 def weird_edgedet():
@@ -20,11 +21,14 @@ def weird_edgedet():
 
 if __name__ == "__main__":
 	img = Image.open(sys.argv[1]).convert("L")
-	img.show()
+	#img.show()
 	img_array = np.array(img, np.uint8).reshape(img.size[1], img.size[0])
-	blurred_array = gaussian_blur(img_array, img.size, 1)
-	#blurred_array = median_filter(blurred_array, img.size, 1)
-
-	blurred_array = detect_edges(blurred_array, img.size)
-	blurred_img = Image.fromarray(np.uint8(blurred_array))
-	blurred_img.show()
+	#blurred_array = gaussian_blur(img_array, img.size, 1)
+	##blurred_array = median_filter(blurred_array, img.size, 1)
+	#edge_array = detect_edges(blurred_array, img.size)
+	edge_array = img_array
+	edge_img = Image.fromarray(np.uint8(edge_array))
+	edge_img.show("edges")
+	accumulator_array = accumulate(edge_array, img.size)
+	accumulate_img = Image.fromarray(np.uint8(accumulator_array))
+	accumulate_img.show("accumulated")
