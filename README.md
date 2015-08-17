@@ -17,6 +17,11 @@ and I have tested that it works on nightmare (at least from my account).
 It should all work but if you encounter an error or want to run it on a different machine
 then you will have to make sure the dependencies are installed.
 
+NOTE: To display the images I'm using a simple debugging show() tool from python pillow.
+This tool makes use of imageMagick on linux. It works for me on ubuntu and it works through
+an ssh -X session to nightmare. If this doesn't work for you then use the save option as specified below
+to save the images to disk in order to view them.
+
 RUN:
 python main.py <filename> 
 other options exist, run the following for help:
