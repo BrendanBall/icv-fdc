@@ -42,9 +42,12 @@ def edge_detection_optimized():
 	edge_img = Image.fromarray(edge_array)
 	#edge_img.show()
 
-	accumulator_array, circles = accumulate(edge_array, img.size)
-	accumulate_img = Image.fromarray(np.uint8(accumulator_array))
-	accumulate_img.show("accumulated")
+	circles, accumulator_arrays = hough_transform(edge_array, img.size)
+	for acc_array in accumulator_arrays:
+		accumulate_img = Image.fromarray(np.uint8(acc_array))
+		accumulate_img.show("accumulated")
+
+	#draw circles
 	img = img.convert("RGB")
 	draw = ImageDraw.Draw(img)
 	for circle in circles:
