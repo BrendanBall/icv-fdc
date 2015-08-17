@@ -4,7 +4,17 @@ import itertools
 from collections import deque
 from operator import itemgetter
 
-def accumulate(edge_array, img_size, threshold):
+def accumulate(edge_array, img_size, threshold=300):
+	"""	Main hough transform function.
+		This is an optimized hough transform which doesn't blindly bruteforce every possible radius 
+		throughout the image. Instead it finds shapes (a shape is a collection of connected points)
+		and creates a bounding box around this shape. the radius is calculated on the assumption that the
+		shape is a circle by getting the difference between the highest and lowest point in the shape.
+		If it is a circle then this radius is correct, otherwise it will simply fail in accumulation and thresholding.
+		regional accumulation is then performed on the bounding box with the specific radius and if a local maxima is above the
+		threshold then it's assumed to be a circle.
+	"""
+
 	accumulater_array = np.zeros((img_size[1], img_size[0]), dtype=np.uint32)
 
 	global_point_set = set()
@@ -43,18 +53,14 @@ def accumulate(edge_array, img_size, threshold):
 					maxima.extend(local_maxima)
 
 
-
-
-
-	#normalize
+	#normalize array so that it can be converted back to an image
 	max_accumulate = accumulater_array.max()
-	print "max: ",max_accumulate
 	if max_accumulate > 255:
 		ratio = max_accumulate / float(255)
 		accumulater_array = accumulater_array / ratio
 
 
-	return (maxima, accumulater_array, max_accumulate)
+	return (maxima, accumulater_array)
 
 
 def connect_points(edge_array, img_size, p0):
@@ -74,11 +80,15 @@ def connect_points(edge_array, img_size, p0):
 						stack.append((x,y))
 	return local_point_set
 
+
 def point_in_array(edge_array, img_size, p):
 	if p[0] >= 0 and p[0] < img_size[0] and p[1] >= 0 and p[1] < img_size[1]:
 		return True
 
+
 def validate_point(edge_array, img_size, p, visited):
+	"""Check if point is inside the array and check if it has been visited. 
+		Helper function for connect_points"""
 	if p[0] >= 0 and p[0] < img_size[0] and p[1] >= 0 and p[1] < img_size[1] and p not in visited:
 		return edge_array[p[1]][p[0]]
 	else:
@@ -86,7 +96,7 @@ def validate_point(edge_array, img_size, p, visited):
 
 
 def accumulate_region(edge_array, accumulater_array, img_size, radius, region_top, region_bot):
-
+	"""Performs accumulation in a local specified region instead of the whole array"""
 	for y in xrange(region_top[1], region_bot[1]):
 		for x in range(region_top[0], region_bot[0]):
 			if edge_array[y][x]:

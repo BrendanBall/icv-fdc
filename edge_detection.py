@@ -66,6 +66,12 @@ def gaussian_blur_optimized(img_array, img_size, kernelsize):
 
 
 def detect_edges(img_array, img_size):
+	"""
+	This is the main edge detection algorithm. 
+	It is very simple and is based on the fact that edges have medium intensity after the gaussian_blur.
+	Given simple sample images as provided by the lecturer, this allows us to simply discard all non medium
+	intensity pixels. This works very well for simple images.
+	"""
 	output_array = np.array(img_array, np.uint8)
 	for y in range(img_size[1]):
 		for x in range(img_size[0]):
@@ -73,29 +79,3 @@ def detect_edges(img_array, img_size):
 			output_array[y][x] = 255 if 150 > output_array[y][x] > 50  else 0
 	return output_array
 
-
-
-
-
-def median_kernel(img_array, img_size, x, y, kernelsize):
-	window = []
-	i = 0
-	for j in range(-kernelsize, kernelsize+1):
-		for i in range(-kernelsize, kernelsize+1):
-			if (y + j >= 0 and x + i >= 0 and y + j < img_size[1]  and x + i < img_size[0]):
-				window.append(img_array[y + j][x + i])
-				i += 1
-
-	window.sort()
-	return window[i/2 +1]
-
-
-def median_filter(img_array, img_size, kernelsize):
-	output_array = np.copy(img_array)
-	for y in range(img_size[1]):
-		for x in range(img_size[0]):
-
-			output_array[y][x] = median_kernel(img_array, img_size, x, y, kernelsize)
-
-
-	return output_array

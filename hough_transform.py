@@ -1,7 +1,17 @@
 import math
 import numpy as np
 
-def accumulate(edge_array, img_size, radius, threshold):
+def accumulate(edge_array, img_size, radius, threshold=300):
+	"""
+	Performs accumulation on the whole array given a particular radius.
+	This only really works if you already know the radius.
+	It is infeasible to run through more than a few different radii
+	as it's extremely slow in python. I haven't tried to vectorize this.
+	See hough_transform_fast for an optimized hough transform which works with
+	arbitrary radii.
+
+	This simply loops through the edge array and creates a circle in the accumulation array for every edge pixel
+	"""
 	accumulater_array = np.zeros((img_size[1], img_size[0]), dtype=np.uint32)
 	for y in range(img_size[1]):
 		for x in range(img_size[0]):
@@ -15,7 +25,6 @@ def accumulate(edge_array, img_size, radius, threshold):
 
 
 	max_accumulate = accumulater_array.max()
-	print "max: ",max_accumulate
 
 	# find circles
 	maxima = []
@@ -26,7 +35,7 @@ def accumulate(edge_array, img_size, radius, threshold):
 	if max_accumulate > 255:
 		ratio = max_accumulate / float(255)
 		accumulater_array = accumulater_array / ratio
-	return (maxima, accumulater_array, max_accumulate)
+	return (maxima, accumulater_array)
 
 
 def find_maxima(arr, img_size, radius, threshold):

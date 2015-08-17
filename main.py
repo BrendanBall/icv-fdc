@@ -5,23 +5,8 @@ import numpy as np
 from edge_detection import *
 from hough_transform import *
 import hough_transform_fast as htf
-
-
-
-
-def edge_detection():
-	img = Image.open(sys.argv[1]).convert("L")
-	#img.show()
-	img_array = np.array(img, np.uint8).reshape(img.size[1], img.size[0])
-	#blurred_array = gaussian_blur(img_array, img.size, 1)
-	##blurred_array = median_filter(blurred_array, img.size, 1)
-	#edge_array = detect_edges(blurred_array, img.size)
-	edge_array = img_array
-	edge_img = Image.fromarray(np.uint8(edge_array))
-	edge_img.show("edges")
-	accumulator_array = accumulate(edge_array, img.size)
-	accumulate_img = Image.fromarray(np.uint8(accumulator_array))
-	accumulate_img.show("accumulated")
+import argparse
+import os
 
 
 def drawing_points(circle):
@@ -42,27 +27,47 @@ def convert_edge_boolean_array(arr, img_size):
 	return bool_array
 
 
-def edge_detection_optimized():
-	img = Image.open(sys.argv[1]).convert("L")
-	#img.show()
-	img_array = np.array(img, np.uint8).reshape(img.size[1], img.size[0])
+def save_image(image, filename, description):
+	directory = "saved_images"
+	if not os.path.exists(directory):
+		os.makedirs(directory)
 
-	blurred_array = gaussian_blur_optimized(img_array, img.size, 2)
+	basename = os.path.basename(filename)
+	basename = os.path.splitext(basename)[0]
+	newname = "%s_%s.gif" % (basename, description)
+	path = os.path.join(directory, newname)
+	image.save(path)
+
+
+
+def edge_detection_optimized(filename, slow=False, radius=None, save=False):
+	img = Image.open(filename).convert("L")
+	img.show()
+	img_array = np.array(img, np.uint8).reshape(img.size[1], img.size[0])
+	print "loaded the image"
+
+	if slow:
+		blurred_array = gaussian_blur(img_array, img.size, 2)
+	else:
+		blurred_array = gaussian_blur_optimized(img_array, img.size, 2)
 	blurred_img = Image.fromarray(blurred_array)
-	#blurred_img.show()
+	blurred_img.show()
+	print "performed a gaussian blur on the image"
 
 	edge_array = detect_edges(blurred_array, img.size)
 	edge_array_bool = convert_edge_boolean_array(edge_array, img.size)
 	edge_img = Image.fromarray(edge_array)
 	edge_img.show()
-	
-	circles, accumulater_array, max_accumulate = htf.accumulate(edge_array_bool, img.size, 300)
+	print "performed edge detection on the image"
+
+	if radius is not None:
+		circles, accumulater_array = accumulate(edge_array, img.size, radius)
+	else:
+		circles, accumulater_array = htf.accumulate(edge_array_bool, img.size)
+
 	accumulate_img = Image.fromarray(np.uint8(accumulater_array))
 	accumulate_img.show("accumulated")
-	#circles, accumulator_arrays = hough_transform(edge_array, img.size)
-	#for acc_array in accumulator_arrays:
-#		accumulate_img = Image.fromarray(np.uint8(acc_array))
-#		accumulate_img.show("accumulated")
+	print "performed hough transform"
 
 	#draw circles
 	img = img.convert("RGB")
@@ -71,9 +76,27 @@ def edge_detection_optimized():
 		circle_points = drawing_points(circle)
 		draw.ellipse(circle_points, outline="#AB0000")
 	img.show()
+	print "highlighted circles on original image"
 
+
+	if save:
+		save_image(blurred_img, filename, "smoothed")
+		save_image(edge_img, filename, "edges")
+		save_image(accumulate_img, filename, "accumulated")
+		save_image(img, filename, "circles_highlighted")
 
 
 
 if __name__ == "__main__":
-	edge_detection_optimized()
+	description = "Simple circle detector. Detects circles in images and highlights them"
+	parser = argparse.ArgumentParser(description=description)
+	parser.add_argument("--slow", action="store_true",help="If you want to use the naive gaussian blur which is very slow then go ahead")
+	parser.add_argument("-r","--radius", type=int, help="Detect circles of specific radius. Uses naive hough transform")
+	parser.add_argument("filename", help="filename of the image you want to process")
+	parser.add_argument("--save", action="store_true", help="Save the files to disk instead of just view them temporarily")
+
+	
+	args = parser.parse_args()
+	
+
+	edge_detection_optimized(args.filename, args.slow, args.radius, args.save)
