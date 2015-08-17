@@ -7,9 +7,9 @@ def accumulate(edge_array, img_size, radius, threshold):
 		for x in range(img_size[0]):
 			if edge_array[y][x] == 255:
 				for theta_d in range(360):
-					radians = np.radians(theta_d)
-					x_acc = int(round(x - radius * np.cos(radians)))
-					y_acc = int(round(y - radius * np.sin(radians)))
+					theta_r = np.radians(theta_d)
+					x_acc = int(round(x + radius * np.cos(theta_r)))
+					y_acc = int(round(y + radius * np.sin(theta_r)))
 					if x_acc < img_size[0] and x_acc >= 0 and y_acc < img_size[1] and y_acc >= 0:
 						accumulater_array[y_acc][x_acc] += 1
 
